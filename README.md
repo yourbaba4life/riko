@@ -70,10 +70,6 @@ dodge err ->
 
 - [ ] TODO
 
-## License
-
-MIT
-
 ---
 
 *Riko the ermine — small but has bite.*
