@@ -11,10 +11,10 @@ A small, blazingly fast interpreted language. Cute name, serious intent.
 
 ## Roadmap
 
-## Phase 1: The Lexer (Lexical Analysis)*Goal: Convert a raw string of code into a stream of meaningful "Tokens."*
+## Phase 1: The Tokenizer (Lexical Analysis)*Goal: Convert a raw string of code into a stream of meaningful "Tokens."*
 
 * [x] **Define the `Token` Enum:** Create a robust Enum in Rust to represent keywords, operators, and literals (e.g., `Token::Let`, `Token::Int(5)`, `Token::Plus`).
-* [ ] **Implement the `Lexer` Struct:** Use a `Peekable<Chars>` iterator to traverse the source code.
+* [ ] **Implement the `Tokenizer` Struct:** Use a `Peekable<Chars>` iterator to traverse the source code.
 * [ ] **Handle Whitespace & Comments:** Skip characters that don't affect logic.
 * [ ] **Identifier Recognition:** Implement logic to distinguish between keywords (like `fn`) and user-defined variables (like `my_var`).
 * **Rust Skill focus:** Pattern matching on characters and `Iterators`.
