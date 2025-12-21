@@ -42,10 +42,26 @@ impl Tokenizer {
         while self.peak() != '"' && !self.is_at_end() {
             self.read_char();
         }
+
         self.read_char();
 
         let value = self.input[start..self.position].iter().collect::<String>();
         tokens.push(Token::STRING(value));
+    }
+
+    fn number(&mut self, tokens: &mut Vec<Token>) {
+        let start = self.position;
+        while self.peak().is_digit(10) && !self.is_at_end() {
+            self.read_char();
+        }
+
+        println!("start: {}, end: {}", start, self.position);
+        let value: f64 = self.input[start..self.position + 1]
+            .iter()
+            .collect::<String>()
+            .parse::<f64>()
+            .unwrap();
+        tokens.push(Token::NUMBER(value));
     }
 
     fn is_at_end(&self) -> bool {
@@ -60,6 +76,8 @@ impl Tokenizer {
                 self.read_char();
                 continue;
             }
+
+            println!("{:?}", self);
 
             match self.ch {
                 '(' => tokens.push(Token::LEFT_PAREN),
@@ -82,7 +100,11 @@ impl Tokenizer {
                 '<' => tokens.push(Token::LESS),
                 '!' => tokens.push(Token::BANG),
                 '"' => self.string(&mut tokens),
-                _ => {}
+                _ => {
+                    if self.ch.is_digit(10) {
+                        self.number(&mut tokens);
+                    }
+                }
             }
 
             self.read_char();
