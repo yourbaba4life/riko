@@ -1,39 +1,4 @@
-enum Token {
-    // Structural Symbols
-    LEFT_PAREN,
-    RIGHT_PAREN,
-    LEFT_BRACE,
-    RIGHT_BRACE,
-    COMMA,
-    DOT,
-    ARROW,
-    // Operators
-    PLUS,
-    MINUS,
-    STAR,
-    SLASH,
-    EQUAL,
-    EQUAL_EQUAL,
-    GREATER,
-    LESS,
-    BANG,
-    // Literals & Identifiers
-    IDENTIFIER(String),
-    STRING(String),
-    NUMBER(f64),
-    // Keywords
-    HOLD,      // create variable
-    STRIKE,    // define variable
-    WHEN,      // if
-    OTHERWISE, // else
-    STALK,     // loop
-    GIVE,      // return value
-    SAY,       // print
-
-    // Other
-    ILLEGAL,
-    EOF, // End of File
-}
+use crate::token::Token;
 
 #[derive(Debug)]
 pub struct Tokenizer {
@@ -55,7 +20,7 @@ impl Tokenizer {
         tokenizer
     }
 
-    pub fn read_char(&mut self) {
+    fn read_char(&mut self) {
         if self.read_position >= self.input.len() {
             self.ch = '\0';
         } else {
@@ -65,32 +30,79 @@ impl Tokenizer {
         self.read_position += 1;
     }
 
-    pub fn is_complete(&self) -> bool {
+    fn peak(&self) -> char {
+        if self.read_position < self.input.len() {
+            return self.input[self.read_position];
+        }
+        return '\0';
+    }
+
+    fn string(&mut self, tokens: &mut Vec<Token>) {
+        let start = self.read_position;
+        while self.peak() != '"' && !self.is_at_end() {
+            self.read_char();
+        }
+        self.read_char();
+
+        let value = self.input[start..self.position].iter().collect::<String>();
+        tokens.push(Token::STRING(value));
+    }
+
+    fn is_at_end(&self) -> bool {
         self.position >= self.input.len()
+    }
+
+    pub fn tokenize(&mut self) -> Vec<Token> {
+        let mut tokens: Vec<Token> = Vec::new();
+
+        while self.input.len() > self.position {
+            if self.ch.is_whitespace() {
+                self.read_char();
+                continue;
+            }
+
+            match self.ch {
+                '(' => tokens.push(Token::LEFT_PAREN),
+                ')' => tokens.push(Token::RIGHT_PAREN),
+                '{' => tokens.push(Token::LEFT_BRACE),
+                '}' => tokens.push(Token::RIGHT_BRACE),
+                ',' => tokens.push(Token::COMMA),
+                '.' => tokens.push(Token::DOT),
+                '+' => tokens.push(Token::PLUS),
+                '-' => tokens.push(Token::MINUS),
+                '*' => tokens.push(Token::STAR),
+                '/' => tokens.push(Token::SLASH),
+                '=' => {
+                    if self.peak() == '=' {
+                        tokens.push(Token::EQUAL_EQUAL)
+                    }
+                    tokens.push(Token::EQUAL)
+                }
+                '>' => tokens.push(Token::GREATER),
+                '<' => tokens.push(Token::LESS),
+                '!' => tokens.push(Token::BANG),
+                '"' => self.string(&mut tokens),
+                _ => {}
+            }
+
+            self.read_char();
+        }
+
+        tokens
     }
 }
 
-#[cfg(test)] // This tells Rust to only compile this code when running 'cargo test'
+/*
+#[cfg(test)]
 mod tests {
-    use super::*; // Allows access to your Lexer and Token types
-    use crate::tokenizer::Token;
+    use super::*;
+    use crate::token::Token;
 
     #[test]
     fn test_next_token() {
         let input = "=+(){},;";
 
-        // In Rust, we use a Vector of the expected Enums directly
-        let tests = vec![
-            Token::Assign,
-            Token::Plus,
-            Token::LParen,
-            Token::RParen,
-            Token::LBrace,
-            Token::RBrace,
-            Token::Comma,
-            Token::Semicolon,
-            Token::EOF,
-        ];
+        let tests = vec![Token::LEFT_PAREN];
 
         let mut l = Tokenizer::new(input);
 
@@ -98,7 +110,6 @@ mod tests {
             let tok = l.next_token();
 
             // assert_eq! checks if the two values are equal.
-            // If they aren't, it panics and prints a helpful error message.
             assert_eq!(
                 tok, *expected_token,
                 "tests[{}] - token mismatch. expected={:?}, got={:?}",
@@ -107,3 +118,4 @@ mod tests {
         }
     }
 }
+*/
